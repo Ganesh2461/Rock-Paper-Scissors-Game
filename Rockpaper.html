@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Scissors - Big Hands</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  text-align:center;
+  font-family:Arial;
+}
+
+body{
+  background:#0f172a;
+  color:white;
+}
+
+h1{
+  background:#081b31;
+  height:5rem;
+  line-height:5rem;
+}
+
+.choices{
+  display:flex;
+  justify-content:center;
+  gap:3rem;
+  margin-top:3rem;
+}
+
+.choice{
+  height:220px;
+  width:220px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition:0.3s;
+  font-size:4rem;
+}
+
+.choice:hover{
+  cursor:pointer;
+  transform:scale(1.1);
+  background:black;
+}
+
+.choice:active{
+  transform:scale(0.9);
+}
+
+.battle{
+  margin-top:2rem;
+  display:flex;
+  justify-content:center;
+  gap:4rem;
+}
+
+.hand{
+  height:200px;
+  font-size:6rem;
+  transition:0.3s;
+}
+
+/* SHAKE ANIMATION */
+@keyframes shake {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-20px); }
+  50% { transform: translateY(20px); }
+  75% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+.shake{
+  animation: shake 0.6s infinite;
+}
+
+#msg{
+  margin-top:2rem;
+  padding:1rem 2rem;
+  background:#081b31;
+  display:inline-block;
+  border-radius:10px;
+  font-size:1.5rem;
+}
+
+.win{
+  box-shadow:0 0 30px lime;
+}
+
+.lose{
+  box-shadow:0 0 30px red;
+}
+
+.score-board{
+  display:flex;
+  justify-content:center;
+  gap:4rem;
+  margin-top:2rem;
+}
+
+#user-score,#comp-score{
+  font-size:2.5rem;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Rock Paper Scissors</h1>
+
+<div class="choices">
+  <div class="choice" id="rock">✊</div>
+  <div class="choice" id="paper">✋</div>
+  <div class="choice" id="scissor">✌️</div>
+</div>
+
+<div class="battle">
+  <div>
+    <p>You</p>
+    <div id="user-hand" class="hand">✊</div>
+  </div>
+
+  <div>
+    <p>Computer</p>
+    <div id="comp-hand" class="hand">✊</div>
+  </div>
+</div>
+
+<div class="score-board">
+  <div>
+    <p id="user-score">0</p>
+    <p>You</p>
+  </div>
+  <div>
+    <p id="comp-score">0</p>
+    <p>Computer</p>
+  </div>
+</div>
+
+<p id="msg">Click a hand to play</p>
+
+<script>
+let userScore = 0;
+let compScore = 0;
+
+const msg = document.getElementById("msg");
+const userScorePara = document.getElementById("user-score");
+const compScorePara = document.getElementById("comp-score");
+
+const userHand = document.getElementById("user-hand");
+const compHand = document.getElementById("comp-hand");
+
+const emojis = {
+  rock: "✊",
+  paper: "✋",
+  scissor: "✌️"
+};
+
+// Sounds
+const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+const winSound = new Audio("https://www.soundjay.com/human/sounds/applause-8.mp3");
+const loseSound = new Audio("https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3");
+
+// Random computer choice
+function genCompChoice(){
+  const options = ["rock","paper","scissor"];
+  return options[Math.floor(Math.random()*3)];
+}
+
+// Main game
+function playGame(userChoice){
+  clickSound.play();
+
+  // Start shaking animation
+  userHand.classList.add("shake");
+  compHand.classList.add("shake");
+  msg.innerText = "🤜🤛 Shaking...";
+
+  setTimeout(()=>{
+    userHand.classList.remove("shake");
+    compHand.classList.remove("shake");
+
+    const compChoice = genCompChoice();
+
+    // Show hands
+    userHand.innerText = emojis[userChoice];
+    compHand.innerText = emojis[compChoice];
+
+    // Decide winner
+    if(userChoice === compChoice){
+      msg.innerText = "🤝 Draw!";
+    } else {
+      let userWin = true;
+
+      if(userChoice === "rock"){
+        userWin = compChoice !== "paper";
+      } else if(userChoice === "paper"){
+        userWin = compChoice !== "scissor";
+      } else {
+        userWin = compChoice !== "rock";
+      }
+
+      if(userWin){
+        userScore++;
+        msg.innerText = "🎉 You Win!";
+        msg.className = "win";
+        winSound.play();
+      } else {
+        compScore++;
+        msg.innerText = "😢 You Lose!";
+        msg.className = "lose";
+        loseSound.play();
+      }
+    }
+
+    userScorePara.innerText = userScore;
+    compScorePara.innerText = compScore;
+
+    setTimeout(()=> msg.className="",500);
+  },1500); // shake duration
+}
+
+// Click events
+document.querySelectorAll(".choice").forEach(choice=>{
+  choice.addEventListener("click", ()=>{
+    playGame(choice.id);
+  });
+});
+</script>
+
+</body>
+</html>
